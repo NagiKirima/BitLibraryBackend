@@ -32,10 +32,10 @@ async def get_genres(
     desc: bool = Query(False, description="Sort in descending order"),
     connection: Connection = Depends(get_db_connection)
 ):
-    query = "SELECT id_genre, genre_name FROM Genres ORDER BY genre_name"
-    if desc:
-        query += ' DESC'
+    order_by = ' DESC' if desc else ' ASC'
+    query = f"SELECT id_genre, genre_name FROM Genres ORDER BY genre_name {order_by}"
     query += f" OFFSET {offset} LIMIT {limit}"
+    
     genres = await connection.fetch(query)
     
     return {
@@ -45,7 +45,7 @@ async def get_genres(
     }
 
 
-@genre_router.get('/{id_genre}', dependencies=[Depends(api_key_auth)])
+@genre_router.get('/id', dependencies=[Depends(api_key_auth)])
 async def get_genre(
     id_genre: uuid.UUID,
     connection: Connection = Depends(get_db_connection)
@@ -58,7 +58,7 @@ async def get_genre(
     }
 
 
-@genre_router.put('/{genre_id}', dependencies=[Depends(api_key_auth)])
+@genre_router.put('/id', dependencies=[Depends(api_key_auth)])
 async def update_genre(
     id_genre: uuid.UUID,
     genre_name: str,

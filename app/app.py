@@ -4,7 +4,8 @@ from contextlib import asynccontextmanager
 
 
 from database import db_init, db_seeder
-from routes import (auth_router, user_router, book_router, genre_router, author_router)
+from routes import (auth_router, user_router, book_router,
+                    genre_router, author_router, reports_router)
 
 
 
@@ -23,6 +24,7 @@ app.include_router(user_router)
 app.include_router(book_router)
 app.include_router(genre_router)
 app.include_router(author_router)
+app.include_router(reports_router)
 
 
 if __name__ == '__main__':

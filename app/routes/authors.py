@@ -32,9 +32,8 @@ async def get_authors(
     desc: bool = Query(False, description="Sort in descending order"),
     connection: Connection = Depends(get_db_connection)
 ):
-    query = "SELECT id_author, author_name FROM Authors ORDER BY author_name"
-    if desc:
-        query += ' DESC'
+    order_by = ' DESC' if desc else ' ASC'
+    query = f"SELECT id_author, author_name FROM Authors ORDER BY author_name {order_by}"
     query += f" OFFSET {offset} LIMIT {limit}"
     authors = await connection.fetch(query)
     
@@ -45,7 +44,7 @@ async def get_authors(
     }
 
 
-@author_router.get('/{id_author}', dependencies=[Depends(api_key_auth)])
+@author_router.get('/id', dependencies=[Depends(api_key_auth)])
 async def get_author(
     id_author: uuid.UUID,
     connection: Connection = Depends(get_db_connection)
@@ -58,7 +57,7 @@ async def get_author(
     }
 
 
-@author_router.put('/{id_author}', dependencies=[Depends(api_key_auth)])
+@author_router.put('/id', dependencies=[Depends(api_key_auth)])
 async def update_author(
     id_author: uuid.UUID,
     author_name: str,

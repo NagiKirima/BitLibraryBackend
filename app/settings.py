@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     db_url: str = f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
     api_key: str = os.getenv('API_KEY')
+    api_user: str = os.getenv('API_USER')
+    api_password: str = os.getenv('API_PASSWORD')
 
 
 settings = Settings()

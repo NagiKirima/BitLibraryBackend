@@ -9,12 +9,12 @@ auth_router = APIRouter(
 )
 
 
-@auth_router.post('/login')
+@auth_router.post('')
 async def login(
     login: str,
     password: str,
 ):
-    if login != 'librarian' or password != 'password':
+    if login != settings.api_user or password != settings.api_password:
         raise HTTPException(status_code=401, detail='Incorrect login or password')
     
     return SuccessLogin(status='success', api_key=settings.api_key)

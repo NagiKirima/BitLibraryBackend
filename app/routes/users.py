@@ -17,14 +17,14 @@ user_router = APIRouter(
 async def get_users(
     offset: int = Query(0, ge=0),
     limit: int = Query(10, gt=0),
-    sort_by: str = Query("full_name", regex="^(full_name|address)$", description="Field to sort: full_name или address"),
+    sort_by: str = Query("full_name", regex="^(full_name|address)$"),
     desc: bool = Query(False, description="Sorting"),
     connection: Connection = Depends(get_db_connection)
 ):
     order = "DESC" if desc else "ASC"
     query = f'''SELECT id_user, full_name, birth_date, address, phone_number 
     FROM users ORDER BY {sort_by} {order} 
-    LIMIT $1 OFFSET $2;'''
+    LIMIT $1 OFFSET $2'''
     
     users = await connection.fetch(query, limit, offset)
     return {
@@ -34,9 +34,9 @@ async def get_users(
     }
 
 
-@user_router.get('/{id_user}', dependencies=[Depends(api_key_auth)])
+@user_router.get('/id', dependencies=[Depends(api_key_auth)])
 async def get_user(
-    id_user: uuid.UUID = Path(description='uuid'),
+    id_user: uuid.UUID = Query(description='uuid'),
     connection: Connection = Depends(get_db_connection)
 ):
     query = '''SELECT id_user, full_name, birth_date, address, phone_number FROM users 
@@ -44,6 +44,25 @@ async def get_user(
     LIMIT 1;
     '''
     user = await connection.fetchrow(query, id_user)
+
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found!")
+
+    return {
+        'user': user
+    }
+
+
+@user_router.get('/phone', dependencies=[Depends(api_key_auth)])
+async def get_user_by_phone(
+    phone_number: str = Query(regex='^7[0-9]{10}$'),
+    connection: Connection = Depends(get_db_connection)
+):
+    query = '''SELECT id_user, full_name, birth_date, address FROM users 
+    WHERE phone_number = $1 
+    LIMIT 1;
+    '''
+    user = await connection.fetchrow(query, phone_number)
 
     if user is None:
         raise HTTPException(status_code=404, detail="User not found!")
@@ -74,7 +93,7 @@ async def create_user(
         raise HTTPException(status_code=400, detail=f"Error with adding user: {str(e)}")
     
 
-@user_router.put('/{user_id}', dependencies=[Depends(api_key_auth)])
+@user_router.put('/id', dependencies=[Depends(api_key_auth)])
 async def update_user(
     user_id: uuid.UUID,
     user: UserUpdate,

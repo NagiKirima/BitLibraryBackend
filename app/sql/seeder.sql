@@ -54,10 +54,9 @@ DECLARE
     i INT;
 BEGIN
     FOR i IN 1..20 LOOP
-        INSERT INTO Books (title, is_available) VALUES 
+        INSERT INTO Books (title) VALUES 
         (
-            'Book Title ' || i,
-            (RANDOM() > 0.5)  -- Случайный статус
+            'Book Title ' || i
         );
     END LOOP;
 END $$;
@@ -96,10 +95,11 @@ DECLARE
     i INT;
 BEGIN
     FOR i IN 1..30 LOOP
-        INSERT INTO BorrowReturnLogs (id_book, id_user, borrow_date, return_date) VALUES 
+        INSERT INTO BorrowReturnLogs (id_book, id_user, is_returned, borrow_date, return_date) VALUES 
         (
             (SELECT id_book FROM Books ORDER BY RANDOM() LIMIT 1),  -- Случайная книга
             (SELECT id_user FROM Users ORDER BY RANDOM() LIMIT 1),  -- Случайный пользователь
+            (RANDOM() > 0.5),
             (CURRENT_DATE - (RANDOM() * 30)::int),  -- Случайная дата займа в пределах 30 дней назад
             (CURRENT_DATE - (RANDOM() * 30)::int) + (1 + (RANDOM() * 10)::int)  -- Случайная дата возврата от 1 до 10 дней позже
         );
