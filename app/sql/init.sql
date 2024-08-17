@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS Books (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS idx_book_name ON Books(title);
 
 -- Создание таблицы связи книг и авторов
 CREATE TABLE IF NOT EXISTS BookAuthors (
