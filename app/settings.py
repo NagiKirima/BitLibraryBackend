@@ -5,7 +5,7 @@ import os
 dotenv.load_dotenv()
 
 class Settings(BaseSettings):
-    db_host: str = os.getenv('POSTGRES_HOST', '127.0.0.1')
+    db_host: str = os.getenv('POSTGRES_HOST')
     db_port: str = os.getenv('POSTGRES_PORT')
     db_user: str = os.getenv('POSTGRES_USER')
     db_password: str = os.getenv('POSTGRES_PASSWORD')

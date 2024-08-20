@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, Query, Body
 from asyncpg import Connection
 import uuid
 
 from depends import api_key_auth
 from database import get_db_connection
+from schemas import AuthorCreate, AuthorEdit
 
 
 author_router = APIRouter(
@@ -14,14 +15,14 @@ author_router = APIRouter(
 
 @author_router.post('', dependencies=[Depends(api_key_auth)])
 async def create_author(
-    author_name: str,
+    author: AuthorCreate,
     connection: Connection = Depends(get_db_connection)
 ):
     query = "INSERT INTO Authors (author_name) VALUES ($1) RETURNING id_author"
-    new_id_author = await connection.fetchval(query, author_name)
+    new_author_id = await connection.fetchval(query, author.author_name)
     return {
         "status": "success", 
-        'id_author': new_id_author
+        'id_author': new_author_id
     }
 
 
@@ -36,11 +37,16 @@ async def get_authors(
     query = f"SELECT id_author, author_name FROM Authors ORDER BY author_name {order_by}"
     query += f" OFFSET {offset} LIMIT {limit}"
     authors = await connection.fetch(query)
+
+    total_count_query = 'SELECT COUNT(*) FROM Authors'
+    total_count = await connection.fetchval(total_count_query)
     
     return {
         'authors': authors,
-        'next_from': None if len(authors) < limit else offset + limit,
-        'count': len(authors)
+        'next_from': None if offset + limit >= total_count else offset + limit,
+        'count': len(authors),
+        'total_count': total_count,
+        'total_pages': (total_count + limit - 1) // limit
     }
 
 
@@ -57,14 +63,25 @@ async def get_author(
     }
 
 
+@author_router.delete('/id', dependencies=[Depends(api_key_auth)])
+async def delete_author(
+    id_author: uuid.UUID,
+    connection: Connection = Depends(get_db_connection)
+):
+    delete_query = 'DELETE FROM Authors WHERE id_author = $1'
+    await connection.execute(delete_query, id_author)
+    
+    return {"status": "success"}
+
+
 @author_router.put('/id', dependencies=[Depends(api_key_auth)])
 async def update_author(
     id_author: uuid.UUID,
-    author_name: str,
+    author: AuthorEdit,
     connection: Connection = Depends(get_db_connection)
 ):
     query = "UPDATE Authors SET author_name = $1 WHERE id_author = $2"
-    await connection.execute(query, author_name, id_author)
+    await connection.execute(query, author.author_name, id_author)
     return {
         'status': 'success',
         'id_author': id_author 

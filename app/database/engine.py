@@ -18,7 +18,7 @@ async def get_db_connection() -> AsyncGenerator[asyncpg.Connection, None]:
 
 
 async def db_init():
-    with open("app/sql/init.sql", "r") as file:
+    with open("sql/init.sql", "r") as file:
         sql_script = file.read()
 
     async for connection in get_db_connection():
@@ -26,7 +26,7 @@ async def db_init():
 
 
 async def db_seeder():
-    with open("app/sql/seeder.sql", "r") as file:
+    with open("sql/seeder.sql", "r") as file:
         sql_script = file.read()
 
     async for connection in get_db_connection():

@@ -17,7 +17,6 @@ class BookUpdate(BaseModel):
 
 
 class BookBorrow(BaseModel):
-    id_user: UUID
-    id_book: UUID
+    books_ids: List[UUID]
     borrow_date: date
     return_date: date

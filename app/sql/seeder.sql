@@ -10,14 +10,17 @@ TRUNCATE TABLE Users CASCADE;
 DO $$
 DECLARE
     i INT;
+    new_phone text;
 BEGIN
-    FOR i IN 1..10 LOOP
+    FOR i IN 1..30 LOOP
+        new_phone := '7' || lpad(trunc(random() * 10^10)::text, 10, '0');
+        
         INSERT INTO Users (full_name, birth_date, address, phone_number) VALUES 
         (
             'User ' || i,
             (CURRENT_DATE - ((RANDOM() * 3650)::int)),
             'Address ' || i,
-            '123-456-789' || (i::text)
+            new_phone
         );
     END LOOP;
 END $$;
@@ -27,7 +30,7 @@ DO $$
 DECLARE
     i INT;
 BEGIN
-    FOR i IN 1..5 LOOP
+    FOR i IN 1..30 LOOP
         INSERT INTO Authors (author_name) VALUES 
         (
             'Author ' || i
@@ -40,7 +43,7 @@ DO $$
 DECLARE
     i INT;
 BEGIN
-    FOR i IN 1..8 LOOP
+    FOR i IN 1..50 LOOP
         INSERT INTO Genres (genre_name) VALUES 
         (
             'Genre ' || i
@@ -53,7 +56,7 @@ DO $$
 DECLARE
     i INT;
 BEGIN
-    FOR i IN 1..20 LOOP
+    FOR i IN 1..100 LOOP
         INSERT INTO Books (title) VALUES 
         (
             'Book Title ' || i
@@ -94,7 +97,7 @@ DO $$
 DECLARE
     i INT;
 BEGIN
-    FOR i IN 1..30 LOOP
+    FOR i IN 1..50 LOOP
         INSERT INTO BorrowReturnLogs (id_book, id_user, is_returned, borrow_date, return_date) VALUES 
         (
             (SELECT id_book FROM Books ORDER BY RANDOM() LIMIT 1),  -- Случайная книга
